@@ -1,7 +1,11 @@
 
 from typing import Callable
 import numpy as np
-
+def grad_p (f : Callable[[float],float],
+            x : float,
+            h : float = 1.e-8) -> np.ndarray:
+    inv_2h = 0.5/h
+    return (f(x+h)-f(x-h)) * inv_2h
 
 
 def grad_c(f : Callable[[np.ndarray], float], \
