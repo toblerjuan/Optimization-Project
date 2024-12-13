@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable,Tuple
 import numpy as np
 from grad import grad_c,grad_p
 from armijos import armijo
@@ -9,51 +9,41 @@ def wolfe(f : Callable[[np.ndarray], float], \
     epsilon : float, \
     sigma: float,
     x0 : np.ndarray,\
-    dk : np.ndarray
-    ) -> float:
-    lambda1 = armijo(f,lambda0,epsilon,alfa,x0,dk)
+    dk : np.ndarray, \
+    func_eval : float
+    ) -> Tuple[float,float]:
+    try :
+        lambda1,func_eval = armijo(f,lambda0,epsilon,alfa,x0,dk,func_eval)
+    except ValueError as e:
+        print (f"Armijo failed to converge due to {e}")
     a = 0
     F = lambda lamb : f(x0+ lamb * dk)
-    F_prime = lambda lam : grad_p(F,lam)
-    F_prime_0 = grad_p(F,0)
-    if abs(F_prime(lambda1)) > -sigma*F_prime_0 :
-        while F_prime(lambda1) < 0 :
-            a = lambda1
-            lambda1 *= alfa
-            if (F_prime(lambda1)) <= -sigma*F_prime_0 :
-                return lambda1
+    def F_prime(lam,func_eval) :
+        func_eval += 2
+        return grad_p(F,lam),func_eval
+    # F_prime = lambda lam : grad_p(F,lam)
+    F_prime_0,func_eval = F_prime(0,func_eval)
+    # func_eval += 2
+    if F_prime_0 > 0: # if the derivative is positive
+        return lambda1,func_eval
+    F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
+    if abs(F_prime_lambda1) > -sigma*F_prime_0 :
+        while F_prime_lambda1 < 0 :
+            a = lambda1 
+            lambda1 *= alfa # increase lambda
+            F_prime_lambda1,func_eval = F_prime(lambda1,func_eval) # calculate the derivative at the new lambda and increase the function evaluation count
+            if (F_prime_lambda1) <= -sigma*F_prime_0 :
+                return lambda1,func_eval
     b = lambda1
     lambda1 = (a + b) / 2
-    while abs(F_prime(lambda1)) > -sigma*F_prime_0 :
-        i = i+ 1
-        if F_prime(lambda1) < 0 :
+    F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
+    while abs(F_prime_lambda1) > -sigma*F_prime_0 :
+        if F_prime_lambda1 < 0 :
             a = lambda1
         else:
             b = lambda1
         lambda1 = (a + b) / 2
-    return lambda1
-
-# k = 2
-# def f(x : np.ndarray) -> float:
-#     return (1-((10**k)* x[0]))**2
-# def g(x: np.ndarray) -> float:
-#     return 2*np.exp(-x[0])+x[0]
-# def h(x: np.ndarray) -> float:
-#     return (x-4)**2 + 6*np.cos(x[0])
-
-# # Initial values
-# x0 = np.ndarray(shape=(1,), dtype=float)
-# x0[0] = 0 # Starting point (arbitrary)
-# sol = 3.3574
-# lambda0 = 1
-# param = [2,0.1,0.1]
-# # param (alfa,epsilon,sigma)
-# dk = np.ndarray(shape=(1,), dtype=float)
-# dk[0] = 1
-# result = wolfe(h, lambda0, param[0], param[1], param[2], x0, dk)
-# stepsize = result*1
-# print(f"Optimal (lambda) found: {result}")
-# print(f"Optimal stepsize found: {stepsize}")
-# print(f"distance from solution{abs(sol-(x0[0]+stepsize))}")
+        F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
+    return lambda1,func_eval
 
 
