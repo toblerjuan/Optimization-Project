@@ -3,6 +3,11 @@ import numpy as np
 from QN import DFP , BFGS
 from rosenbrock import rosenbrock
 k = 2
+# i want 4 decimals when i print the results 
+np.set_printoptions(precision=6, suppress=True)
+
+
+
 def f(x : np.ndarray) -> float:
     return x[0]**2 + x[1]**2
 
@@ -35,15 +40,9 @@ def Program(f : Callable[[np.ndarray], float], \
     total_func_eval += func_eval
     i = 1
     while i < max_iter and normgrad > tol:
-        print("normgrad is",normgrad)
-        if (i % 10 == 0):
-            print("iteration: ",i)
-            print("Current_x: ",Next_x)
-            print("f(x)",f(Next_x))
-            print("grad: ",normgrad)
-            print("func_eval: ",func_eval)
-            print("lam: ",lam) 
-            print("")
+        #print("normgrad is",normgrad)
+        if (i % 3 == 0):
+            print(f"Iteration: {i:3d}, x: {Next_x}, f(x): {f(Next_x):.6f}, Gradient norm: {normgrad:.6f}, Function evaluations: {func_eval}, Lambda: {lam:.6f}")
         if restart and i % 20 == 0 :
             Next_x, func_eval, lam, normgrad, D_k = DFP(f,Next_x,np.eye(dim)) if dfp else BFGS(f,Next_x,np.eye(dim))
             print("D_K restarted")
@@ -59,9 +58,10 @@ def Program(f : Callable[[np.ndarray], float], \
     return Next_x, f(Next_x), total_func_eval
 tol = 1e-6
 start_x = np.array([1,1,1,-1])
-start_x1 = np.array([5,5])
+start_x1 = np.array([-2,3])
 start_x3 = np.array([-2,2,2,-1,-1])
-x,res,total = Program(f,tol,start_x1,"BFGS",True)
-print("Solution to problem is x = ",x)
+x,res,total = Program(h,tol,start_x1,"DFP",True)
+np.set_printoptions(precision=16)  # Set precision to 16 decimal places (or as required)
+print(f"Solution to problem is x = {x}")
 print("f(x) = ",res)
 print("Total function evaluations: ",total)
