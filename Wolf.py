@@ -17,15 +17,17 @@ def wolfe(f : Callable[[np.ndarray], float], \
     except ValueError as e:
         print (f"Armijo failed to converge due to {e}")
     a = 0
-    F = lambda lamb : f(x0+ lamb * dk)
+    F = lambda lamb : f(x0+ lamb * dk) # line search function
+
     def F_prime(lam,func_eval) :
-        func_eval += 2
-        return grad_p(F,lam),func_eval
-    # F_prime = lambda lam : grad_p(F,lam)
+        grad,func_eval = grad_p(F,lam), func_eval + 2
+        return grad,func_eval
+    
     F_prime_0,func_eval = F_prime(0,func_eval)
-    # func_eval += 2
+    print("F_prime_0 = ",F_prime_0)
+    print("x0 = ", x0)
     if F_prime_0 > 0: # if the derivative is positive
-        return lambda1,func_eval
+       return lambda1,func_eval
     F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
     if abs(F_prime_lambda1) > -sigma*F_prime_0 :
         while F_prime_lambda1 < 0 :
@@ -37,7 +39,9 @@ def wolfe(f : Callable[[np.ndarray], float], \
     b = lambda1
     lambda1 = (a + b) / 2
     F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
-    while abs(F_prime_lambda1) > -sigma*F_prime_0 :
+    while abs(F_prime_lambda1) > -sigma*F_prime_0 and abs(b-a) > 1e-6:
+        #print("F_prime_lambda1 = ",abs(F_prime_lambda1))
+        #print("F_prime_0 = ",-sigma*F_prime_0)
         if F_prime_lambda1 < 0 :
             a = lambda1
         else:

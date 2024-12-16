@@ -21,7 +21,7 @@ def DFP(f : Callable[[np.ndarray], float], \
     q_k = grad_c(f,p_k + x) - grad_c(f,x)
     D_k = D_k + (p_k@p_k.T / (p_k.T@p_k)) - (D_k @ np.outer(q_k, q_k) @ D_k) / (q_k.T @D_k @q_k)
     x = x + lam*dk
-    return x , func_eval, lam, grad_c(f,x), D_k
+    return x , func_eval, lam, np.linalg.norm(grad_c(f,x)), D_k
 
 def BFGS(f : Callable[[np.ndarray], float], \
     x0 : np.ndarray, \
@@ -32,7 +32,13 @@ def BFGS(f : Callable[[np.ndarray], float], \
     dk = -D_k @ grad_c(f,x)
     lam,func_eval = wolfe(f,lamb,alpha,epsilon,sigma,x,dk,func_eval)
     p_k = lam*dk
+    print("p_k = ",p_k)
+    print("lam = ",lam)
     q_k = grad_c(f,p_k + x) - grad_c(f,x)
-    D_k = D_k + (1 / (p_k.T @ q_k))*((1 + (q_k.T @ D_k @ q_k)/(p_k.T @ q_k))*p_k@p_k.T - D_k @ np.outer(q_k, p_k) - np.outer(p_k, q_k) @ D_k)
-    return x, func_eval, lam, grad_c(f,x), D_k
+    try:
+        D_k = D_k + (1 / (p_k.T @ q_k))*((1 + (q_k.T @ D_k @ q_k)/(p_k.T @ q_k))*p_k@p_k.T - D_k @ np.outer(q_k, p_k) - np.outer(p_k, q_k) @ D_k)
+    except ZeroDivisionError:
+        raise ValueError("division by zero")
+    x = x + lam*dk
+    return x, func_eval, lam, np.linalg.norm(grad_c(f,x)), D_k
     
