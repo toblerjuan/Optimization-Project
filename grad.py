@@ -3,14 +3,16 @@ from typing import Callable
 import numpy as np
 def grad_p (f : Callable[[float],float],
             x : float,
-            h : float = 1.e-12) -> np.ndarray:
+            h : float = 1.e-14) -> np.ndarray:
     inv_2h = 0.5/h
+    #if f(x+h)-f(x-h) < 1.e-10:
+       # return grad_p(f,x,h*10)
     return (f(x+h)-f(x-h)) * inv_2h
 
 
 def grad_c(f : Callable[[np.ndarray], float], \
             x : np.ndarray, \
-            h : float = 1.e-12) -> np.ndarray:
+            h : float = 1.e-14) -> np.ndarray:
     """
     Calculates the gradient (numpy-1D-array) g of 
     function f with central differences
@@ -31,7 +33,6 @@ def grad_c(f : Callable[[np.ndarray], float], \
         g[i] = (f(x+hi) - f(x-hi)) * inv_2h
 
     return g
-
 
 
 def jacobian_c(f : Callable[[np.ndarray], np.ndarray], \
