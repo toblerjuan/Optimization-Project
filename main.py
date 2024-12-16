@@ -1,6 +1,6 @@
 from typing import Callable, Tuple
 import numpy as np
-from QN import DFP , BFGS
+from QN import QuasiN
 from rosenbrock import rosenbrock
 k = 2
 def f(x : np.ndarray) -> float:
@@ -18,33 +18,26 @@ def Program(f : Callable[[np.ndarray], float], \
     method : str, \
     restart : bool) \
     -> None:
-    max_iter = 1000000
+    max_iter = 10000
     dim = init_guess.shape[0]
-    dfp = True
     total_func_eval = 0
-    if method == "DFP" :
-        dfp = True
-    elif method == "BFGS" :
-        dfp = False
-    Next_x, func_eval, lam, normgrad, D_k = DFP(f,init_guess,np.eye(dim)) if dfp else BFGS(f,init_guess,np.eye(dim))
+    Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,init_guess,np.eye(dim),method)
     total_func_eval += func_eval
-    x_old = init_guess + 1
     i = 1
-    while  np.linalg.norm(normgrad) > tol and i < max_iter and abs(f(x_old) - f(Next_x)) > tol: #abs(f(Current_x)  - f(Next_x)) > tol
+    while  np.linalg.norm(normgrad) > tol and i < max_iter :
         if (i % 10 == 0):
             print("iteration: ",i)
             print("Current_x: ",Next_x)
-            print("f(x)",f(Next_x))
+            print("f(x): ",f(Next_x))
             print("normgrad: ",normgrad)
             print("func_eval: ",func_eval)
             print("lam: ",lam) 
             print("")
-        x_old = Next_x
         if restart and i % 20 == 0 :
-            Next_x, func_eval, lam, normgrad, D_k = DFP(f,Next_x,np.eye(dim)) if dfp else BFGS(f,Next_x,np.eye(dim))
+            Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,np.eye(dim),method)
             print("D_K restarted")
         else :
-            Next_x, func_eval, lam, normgrad,D_k = DFP(f,Next_x,D_k) if dfp else BFGS(f,Next_x,D_k)
+            Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,D_k,method)
         i += 1
         total_func_eval += func_eval
     print("Stopping criteria meet")
@@ -52,12 +45,10 @@ def Program(f : Callable[[np.ndarray], float], \
         print("Max iterations reached")
     if (np.linalg.norm(normgrad) < tol):
         print("Gradient norm less than tol")
-    if (abs(f(x_old) - f(Next_x)) < tol):
-        print("Function value difference less than tol")
     return Next_x, f(Next_x), total_func_eval
-tol = 1e-100
+tol = 1e-4
 start_x = np.array([1,1,1,-1])
-start_x1 = np.array([1,1])
+start_x1 = np.array([3,5])
 x,f,total = Program(rosenbrock,tol,start_x1,"DFP",True)
 print("Solution to problem is x = ",x)
 print("f(x) = ",f)
