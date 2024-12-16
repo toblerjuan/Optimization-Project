@@ -1,6 +1,6 @@
 from typing import Callable, Tuple
 import numpy as np
-from QN import DFP , BFGS
+from QN import QuasiN
 from rosenbrock import rosenbrock
 k = 2
 # i want 4 decimals when i print the results 
@@ -28,15 +28,10 @@ def Program(f : Callable[[np.ndarray], float], \
     method : str, \
     restart : bool) \
     -> None:
-    max_iter = 1000000
+    max_iter = 10000
     dim = init_guess.shape[0]
-    dfp = True
     total_func_eval = 0
-    if method == "DFP" :
-        dfp = True
-    elif method == "BFGS" :
-        dfp = False
-    Next_x, func_eval, lam, normgrad, D_k = DFP(f,init_guess,np.eye(dim)) if dfp else BFGS(f,init_guess,np.eye(dim))
+    Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,init_guess,np.eye(dim),method)
     total_func_eval += func_eval
     i = 1
     while i < max_iter and normgrad > tol:
@@ -44,11 +39,11 @@ def Program(f : Callable[[np.ndarray], float], \
         if (i % 3 == 0):
             print(f"Iteration: {i:3d}, x: {Next_x}, f(x): {f(Next_x):.6f}, Gradient norm: {normgrad:.6f}, Function evaluations: {func_eval}, Lambda: {lam:.6f}")
         if restart and i % 20 == 0 :
-            Next_x, func_eval, lam, normgrad, D_k = DFP(f,Next_x,np.eye(dim)) if dfp else BFGS(f,Next_x,np.eye(dim))
+            Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,np.eye(dim),method)
             print("D_K restarted")
         else :
-            Next_x, func_eval, lam, normgrad, D_k = DFP(f,Next_x,D_k) if dfp else BFGS(f,Next_x,D_k)
-        i += 1  
+            Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,D_k,method)
+        i += 1
         total_func_eval += func_eval
     print("Stopping criteria meet")
     if (i == max_iter):
@@ -56,7 +51,7 @@ def Program(f : Callable[[np.ndarray], float], \
     if normgrad < tol:
         print("Gradient norm less than tol")
     return Next_x, f(Next_x), total_func_eval
-tol = 1e-6
+tol = 1e-4
 start_x = np.array([1,1,1,-1])
 start_x1 = np.array([-2,3])
 start_x3 = np.array([-2,2,2,-1,-1])
