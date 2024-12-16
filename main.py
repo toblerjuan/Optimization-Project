@@ -30,7 +30,7 @@ def Program(f : Callable[[np.ndarray], float], \
     total_func_eval += func_eval
     x_old = init_guess + 1
     i = 1
-    while  np.linalg.norm(normgrad) > tol : # and i < max_iter and abs(f(x_old) - f(Next_x)) > tol: #abs(f(Current_x)  - f(Next_x)) > tol
+    while  np.linalg.norm(normgrad) > tol and i < max_iter and abs(f(x_old) - f(Next_x)) > tol: #abs(f(Current_x)  - f(Next_x)) > tol
         if (i % 10 == 0):
             print("iteration: ",i)
             print("Current_x: ",Next_x)
@@ -57,8 +57,8 @@ def Program(f : Callable[[np.ndarray], float], \
     return Next_x, f(Next_x), total_func_eval
 tol = 1e-100
 start_x = np.array([1,1,1,-1])
-start_x1 = np.array([1,0])
-x,f,total = Program(rosenbrock,tol,start_x1,"DFPz",True)
+start_x1 = np.array([1,1])
+x,f,total = Program(rosenbrock,tol,start_x1,"DFP",True)
 print("Solution to problem is x = ",x)
 print("f(x) = ",f)
 print("Total function evaluations: ",total)
