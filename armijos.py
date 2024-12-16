@@ -14,11 +14,6 @@ def armijo(f: Callable[[np.ndarray], float],
     F = lambda lamb : f(x0 + lamb * dk)
     grad_0 = grad_p(F, 0)
     func_eval += 2
-    # print("armoij gradient with 0: ", grad_0)
-    
-    # if grad_0 > 0 : # check that the direction is decending, if not, change direction
-    #     lambda0 = -lambda0
-    #     print("SWITCHED DIRECTIONS")
     start = F(0)
     func_eval += 1
     T = lambda lam : start + (epsilon * grad_0 * lam)
