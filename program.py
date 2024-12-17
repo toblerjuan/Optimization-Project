@@ -11,7 +11,8 @@ def Program(f : Callable[[np.ndarray], float], \
     init_guess : np.ndarray, \
     method : str, \
     restart : bool, \
-    printOption : bool) \
+    printOption : bool, \
+    restart_freq : float) \
     -> None:
     max_iter = 10000
     dim = init_guess.shape[0]
@@ -22,7 +23,7 @@ def Program(f : Callable[[np.ndarray], float], \
     while i < max_iter and normgrad > tol:
         if (i % 3 == 0) and printOption :
             print(f"Iteration: {i:3d}, x: {Next_x}, f(x): {f(Next_x):.6f}, Gradient norm: {normgrad:.6f}, Function evaluations: {func_eval}, Lambda: {lam:.6f}")
-        if restart and i % 20 == 0 :
+        if restart and i % restart_freq == 0 :
             Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,np.eye(dim),method)
             if printOption :
                 print("D_K restarted")
