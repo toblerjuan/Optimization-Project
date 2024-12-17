@@ -2,8 +2,6 @@ from typing import Callable,Tuple
 import numpy as np
 from grad import grad_c,grad_p
 from armijos import armijo
-def f(x: np.ndarray) -> float:
-    return (x[0] - 1)**2 + (x[1] - 2)**2
 
 def wolfe(f : Callable[[np.ndarray], float], \
     lambda0 : float, \
@@ -26,9 +24,7 @@ def wolfe(f : Callable[[np.ndarray], float], \
         return grad,func_eval
     
     F_prime_0,func_eval = F_prime(0,func_eval)
-    #print("F_prime_0 = ",F_prime_0)
-    #print("x0 = ", x0)
-    if F_prime_0 > 0: # if the derivative is positive
+    if F_prime_0 > 0: 
        return lambda1,func_eval
     F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
     if abs(F_prime_lambda1) > -sigma*F_prime_0 :
@@ -42,8 +38,6 @@ def wolfe(f : Callable[[np.ndarray], float], \
     lambda1 = (a + b) / 2
     F_prime_lambda1,func_eval = F_prime(lambda1,func_eval)
     while abs(F_prime_lambda1) > -sigma*F_prime_0 and abs(b-a) > 1e-6:
-        #print("F_prime_lambda1 = ",abs(F_prime_lambda1))
-        #print("F_prime_0 = ",-sigma*F_prime_0)
         if F_prime_lambda1 < 0 :
             a = lambda1
         else:

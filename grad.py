@@ -5,8 +5,6 @@ def grad_p (f : Callable[[float],float],
             x : float,
             h : float = 1.e-8) -> np.ndarray:
     inv_2h = 0.5/h
-    #if f(x+h)-f(x-h) < 1.e-10:
-       # return grad_p(f,x,h*10)
     return (f(x+h)-f(x-h)) * inv_2h
 
 

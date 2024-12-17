@@ -1,6 +1,5 @@
 from typing import Callable, Tuple
 import numpy as np
-from grad import grad_c
 from grad import grad_p
 
 
@@ -12,7 +11,6 @@ def armijo(f: Callable[[np.ndarray], float],
            dk: np.ndarray,
            func_eval: float) -> Tuple[float,float]:
     F = lambda lamb : f(x0 + lamb * dk)
-    # print("dk", dk)
     grad_0 = grad_p(F, 0)
     func_eval += 2
     start = F(0)
@@ -22,8 +20,6 @@ def armijo(f: Callable[[np.ndarray], float],
     while True :
         F_val = F(alfa*lambda0) 
         T_val = T(alfa*lambda0)
-        # print("F_val: ",F_val)
-        # print("T_val: ",T_val)
         func_eval += 1
         if F_val >= T_val:
             break 
