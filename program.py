@@ -35,7 +35,7 @@ def Program(f : Callable[[np.ndarray], float], \
                 Next_x, func_eval, lam, normgrad, D_k = QuasiN(f,Next_x,D_k,method)
             except Exception as e:
                 print(f"Algorithem stopped because: {e}")
-                return 0,0,-1
+                return Next_x,f(Next_x),-1
         i += 1
         total_func_eval += func_eval
     mes = "Stopping criteria meet: "

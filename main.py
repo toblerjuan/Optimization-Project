@@ -4,7 +4,7 @@ from program import Program
 from grad import grad_c
 
 # i want 4 decimals when i print the results 
-np.set_printoptions(precision=6, suppress=True)
+np.set_printoptions(precision=6, suppress=False)
 
 def f (x : np.ndarray) -> np.ndarray: # with 2 variables: x[0],x[1]
     return x[0]**2 + x[1]**2
@@ -16,10 +16,7 @@ def j (x : np.ndarray) -> np.ndarray: # with 4 variables: x[0],x[1],x[2],x[3]
 #     return np.exp(x[0]*x[1]*x[2]*x[3]*x[4])+ m*(i)*((x[0]**2+x[1]**2+x[2]**2+x[3]**2+x[4]**2)-10)**2 + m(i)*(x[1]*x[2] - (5*x[3]*x[4]))**2 + m(i)*abs((x[0]**3+x[2]**3)+1)**2
 
 def checkboundaries(x : np.ndarray) -> np.ndarray:
-    print("Checking boundaries")
-    print((x[0]**2+x[1]**2+x[2]**2+x[3]**2+x[4]**2)-10)
-    print(x[1]*x[2] - 5*x[3]*x[4])
-    print((x[0]**3+x[2]**3)+1)
+    return np.array([(x[0]**2+x[1]**2+x[2]**2+x[3]**2+x[4]**2)-10 ,(x[1]*x[2] - 5*x[3]*x[4]),(x[0]**3+x[2]**3)+1])
 
 start_x_2d = np.array([14,132])
 start_x_4d = np.array([1,1,1,-1])
@@ -47,7 +44,7 @@ if False :
         print("restart_freq = ",restart_freq)
     else :
         print("restart_freq = None")
-elif True :
+elif False :
 
     function = rosenbrock
     x_range = np.array([-10,1000])
@@ -82,22 +79,35 @@ elif True :
         print("")
         i += 1
 else :
-
     print("New code here")
 
 def pen() : # Run this to try the penalty problem
+    outer_tol = 1e-6
     m = lambda lam : 10**(lam - 5)
     i = 0
-    while (i < 15) :
-        
-        x_new = start_x3
+    tol = 1e-4                #<- Change here   
+    restart = True              #<- Change here 
+    restart_freq = 20           #<- Change here
+    method = "DFP"             #<- Change here
+    x_new = start_x_5d
+    print("method = ",method)
+    while (i < 20) :
         def e (x : np.ndarray) -> np.ndarray:
-            return np.exp(x[0]*x[1]*x[2]*x[3]*x[4])+ m(i)*((x[0]**2+x[1]**2+x[2]**2+x[3]**2+x[4]**2)-10)**2 + m(i)*(x[1]*x[2] - (5*x[3]*x[4]))**2 + m(i)*abs((x[0]**3+x[2]**3)+1)**2
-        x_new,res,total = Program(e,tol,x_new,"DFP",False,True)
-        print(f"Solution to problem is x = {x_new}")
+            return np.exp(x[0]*x[1]*x[2]*x[3]*x[4])+ m(i)*((x[0]**2+x[1]**2+x[2]**2+x[3]**2+x[4]**2)-10)**2 + m(i)*(x[1]*x[2] - (5*x[3]*x[4]))**2 + m(i)*((x[0]**3+x[2]**3)+1)**2
+        print("Startingpoint = ",x_new)
+        x_new,res,total = Program(e,tol,x_new,method,restart,False,restart_freq)
+        print("mu = ",m(i))
+        print("Endpoint = ",x_new)
         print("f(x) = ",res)
-        print("Total function evaluations: ",total)
-        print("i = ",i)
-        checkboundaries(x_new)
+        print("Iteration = ",i)
         i += 1
+        bound = checkboundaries(x_new)
+        print("Boundaries = ",bound)
+        if np.linalg.norm(bound) < outer_tol :
+            print("Penalty problem done")
+            break
+        elif total == -1 :
+            print("penalty problem not solved")
+            break
+pen()
 
