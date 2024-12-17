@@ -8,8 +8,6 @@ np.set_printoptions(precision=6, suppress=True)
 
 def f (x : np.ndarray) -> np.ndarray: # with 2 variables: x[0],x[1]
     return x[0]**2 + x[1]**2
-def p (x : np.ndarray) -> np.ndarray: # with 2 variables: x[0],x[1]
-    return (x[0]-2)**2 + (x[1]-3)**2 + m(i)*(x[0]+x[1]-4)**2+ m(i)*(x[0]-x[1]-1)**2
 def h (x : np.ndarray) -> np.ndarray: # with 2 variables: x[0],x[1]
     return (x[0]**2 + x[1] - 11)**2 + (x[0] + x[1]**2 - 7)**2
 def j (x : np.ndarray) -> np.ndarray: # with 4 variables: x[0],x[1],x[2],x[3]
@@ -27,7 +25,7 @@ start_x_2d = np.array([14,132])
 start_x_4d = np.array([1,1,1,-1])
 start_x_5d = np.array([-2,2,2,-1,-1])
 new = np.array([-1.526286 ,1.404612 ,1.367206 ,-1.383988 ,-1.383988])
-if True :
+if False :
     tol = 1e-9                  #<- Change here
     startpoint =  start_x_2d    #<- Change here
     restart = False              #<- Change here 
@@ -49,12 +47,13 @@ if True :
         print("restart_freq = ",restart_freq)
     else :
         print("restart_freq = None")
-else :
+elif True :
 
     function = rosenbrock
     x_range = np.array([-10,1000])
     cycles = 50
     tol = 1e-10
+    restart_freq = 20
     x_sol = np.array([1,1])
     
 
@@ -64,12 +63,12 @@ else :
     
     i = 0
     while i < cycles :
-        x_ans_D[i,:],res,eval_D[i] = Program(function,tol,x_start[i,:],"DFP",True,False)
+        x_ans_D[i,:],res,eval_D[i] = Program(function,tol,x_start[i,:],"DFP",True,False,restart_freq)
         if np.linalg.norm(x_ans_D[i,:] - x_sol) < 1e-6 :
             conv_D[i] = True
         else :
             conv_D[i] = False
-        x_ans_B[i,:],res,eval_B[i] = Program(function,tol,x_start[i,:],"BFGS",True,False)
+        x_ans_B[i,:],res,eval_B[i] = Program(function,tol,x_start[i,:],"BFGS",True,False,restart_freq)
         if np.linalg.norm(x_ans_B[i,:] - x_sol) < 1e-6 :
             conv_B[i] = True
         else :
@@ -82,7 +81,10 @@ else :
         print(f"Method: BFGS, Convredge: {conv_B[i]}, Func.Eval: {eval_B[i]:4.1f}")
         print("")
         i += 1
-    
+else :
+
+    print("New code here")
+
 def pen() : # Run this to try the penalty problem
     m = lambda lam : 10**(lam - 5)
     i = 0
