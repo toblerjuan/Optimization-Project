@@ -27,36 +27,48 @@ def checkboundaries(x : np.ndarray) -> np.ndarray:
     print((x[0]**3+x[2]**3)+1)
 
 tol = 1e-4
-start_x_2d = np.array([-100,-3231])
+start_x_2d = np.array([-100,-331])
 start_x = np.array([1,1,1,-1])
 start_x1 = np.array([1.6,2.3])
 start_x2 = np.array([1.5,2.5])
 start_x3 = np.array([-2,2,2,-1,-1])
 new = np.array([-1.526286 ,1.404612 ,1.367206 ,-1.383988 ,-1.383988])
 if True :
-    x,res,total = Program(h,tol,start_x,"BFGS",False,True)
+    x,res,total = Program(rosenbrock,tol,start_x_2d,"BFGS",False,True)
     np.set_printoptions(precision=16)  # Set precision to 16 decimal places (or as required)
     print(f"Solution to problem is x = {x}")
     print("f(x) = ",res)
     print("Total function evaluations: ",total)
-
-# print("Testing matrix multiplication")
-
-# A = np.array([1, 2])
-# B = np.array([3, 4])
-# C = A.T @ B
-# D = A @ B.T
-# E = np.outer(B,A)
-# F = np.outer(A,B)
-# print(A)
-# print(B)
-# print(C)
-# print(D)
-# print(E)
-# print(F)
-# G = np.transpose(F)
-# print(G)
-
+else :
+    x_start = (np.random.rand(50, 2)-0.5)*100
+    # print(x_start)
+    x_ans_D = np.empty((50,2))
+    eval_D = np.empty(50)
+    conv_D = np.empty(50)
+    x_ans_B = np.empty((50,2))
+    eval_B = np.empty(50)
+    conv_B = np.empty(50)
+    tol = 1e-6
+    x_sol = np.array([1,1])
+    i = 0
+    while i < 50 :
+        x_ans_D[i,:],res,eval_D[i] = Program(rosenbrock,tol,x_start[i,:],"DFP",False,False)
+        if np.linalg.norm(x_ans_D[i,:] - x_sol) < 1e-6 :
+            conv_D[i] = True
+        else :
+            conv_D[i] = False
+        x_ans_B[i,:],res,eval_B[i] = Program(f,tol,x_start[i,:],"BFGS",False,False)
+        if np.linalg.norm(x_ans_B[i,:] - x_sol) < 1e-6 :
+            conv_B[i] = True
+        else :
+            conv_B[i] = False
+        i += 1
+    i = 0
+    while i < 50 :
+        print(f"Start: {x_start[i,:]}, Method: DFP, Convredge: {conv_D[i]}, Func.Eval: {eval_D[i]}")
+        print(f"Start: {x_start[i,:]}, Method: BFGS, Convredge: {conv_B[i]}, Func.Eval: {eval_B[i]}")
+        i += 1
+    
 def pen() : # Run this to try the penalty problem
     i = 0
     while (i < 15) :
